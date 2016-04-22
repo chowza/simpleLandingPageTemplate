@@ -30,7 +30,6 @@ module.exports = {
         prod: {
             dest: 'dist/prod/',
             url: '',
-            cmsUrl: "",
             fbId: '',
             analyticsId: '',
             debug: false

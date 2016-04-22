@@ -29,6 +29,13 @@ html
 
         //- css
         link(rel="stylesheet" href="/index.css" type="text/css")
+        script.
+          window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+          ga('create', !{JSON.stringify(locals.analyticsId)}, 'auto');
+          ga('send', 'pageview');
+        script(async src='https://www.google-analytics.com/analytics.js')
+        script.
+          var Global = !{JSON.stringify(locals)}
         
             
     body

@@ -32,7 +32,6 @@
     ,   gulpif      = require('gulp-if')                // execute operations conditionally
 
 
-
     // javascript
     ,   browserify  = require('browserify')             // use require() in your js
     ,   watchify    = require('watchify')             // use require() in your js
@@ -134,7 +133,7 @@
         // If the environment is other than "dev", this will also minify.
         // If the environment is prod, console.log() calls are stripped.
         gulp.task('scripts', function() {
-
+            
             var src  = config.src + config.scripts.src,
                 dest = config.environments[env].dest + config.scripts.dest,
                 generateSourcemaps = (env === 'dev' || env ===  'local');
@@ -158,7 +157,6 @@
             dest = config.environments[env].dest + config.markup.dest;
 
         // gutil.log('Rebuilding Jade.');
-
         gulp.src(src)
             .pipe(
                 jade({ pretty: true, locals: config.environments[env] })

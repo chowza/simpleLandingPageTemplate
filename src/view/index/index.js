@@ -1,13 +1,12 @@
-var social = require("../../component/social/social.js")
+var social = require('../../component/social/social.js');
 
-
-function addEventListeners(){
+function addEventListeners() {
 
 }
 
-function init(){
-  social.loadFacebook()
-  addEventListeners()
+function init() {
+  social.loadFacebook();
+  addEventListeners();
 }
 
-init()
+init();

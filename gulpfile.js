@@ -37,8 +37,6 @@ var browserify = require('browserify');           // use require() in your js
 var watchify = require('watchify');               // use require() in your js
 var source = require('vinyl-source-stream');      // need this for browserify
 var buffer = require('vinyl-buffer');             // need this for browserify too
-// var babel = require('gulp-babel');                // transpile es6 to es5
-// var es2015 = require('babel-preset-es2015');      // presets for babel
 var uglify = require('gulp-uglify');              // minify javascript
 var stripDebug = require('gulp-strip-debug');     // remove console.log() from production build
 var es = require('event-stream');
@@ -57,6 +55,9 @@ var args = require('yargs').argv;                 // command line arguments
 var config = require('./gulp-config');            // settings and build paths
 var env = 'local';                                // environment to build for
 
+// presets for babel, does not need to be required, but must be installed
+// require('babel-preset-es2015');
+
 /* === UTILS === */
 
 /**
@@ -64,10 +65,11 @@ var env = 'local';                                // environment to build for
  * @param  {Object} e Error message
  */
 function handleError(e) {
-  var message = e.message.split('\n');
-  message.forEach(function logError(line) {
-    gutil.log(line);
-  });
+  // var message = e.message.split('\n');
+  // gutil.log(message);
+  // message.forEach(function logError(line) {
+  //   gutil.log(line);
+  // });
 
   gutil.log(e.stack);
   gutil.beep();
@@ -109,13 +111,14 @@ gulp.task('watch-scripts', function watchScripts(done) {
         packageCache: {}
       });
       var w = watchify(b);
-            // uncomment for es6
-            // w.transform('babelify',{
-            //   sourceMaps: generateSourcemaps,
-            //   presets: ['babel-preset-es2015'],
-            //   compact: false
-            // })
-            // .transform('browserify-shim')
+
+      // uncomment for es6
+      // w.transform('babelify', {
+      //   sourceMaps: generateSourcemaps,
+      //   presets: ['babel-preset-es2015'],
+      //   compact: false
+      // });
+      // .transform('browserify-shim');
 
       function rebundle() {
         return w.bundle()
@@ -155,20 +158,20 @@ gulp.task('scripts', function scripts(done) {
     tasks = files.map(function browserifyFiles(entry) {
       return browserify({ entries: [entry], debug: generateSourcemaps })
                 // uncomment below for es6
-                // .transform('babelify',{
-                //   sourceMaps:generateSourcemaps,
-                //   presets:['babel-preset-es2015'],
-                //   compact:false
-                // })
-                // .transform('browserify-shim')
-                .bundle()
-                .on('error', handleError)
-                .pipe(source(entry))
-                .pipe(buffer())
-                .pipe(gulpif(env !== 'dev' && env !== 'local', stripDebug()))
-                .pipe(gulpif(env !== 'dev' && env !== 'local', uglify()))
-                .pipe(rename({ dirname: '' }))
-                .pipe(gulp.dest(dest));
+            // .transform('babelify', {
+            //   sourceMaps: generateSourcemaps,
+            //   presets: ['babel-preset-es2015'],
+            //   compact: false
+            // })
+            // .transform('browserify-shim')
+            .bundle()
+            .on('error', handleError)
+            .pipe(source(entry))
+            .pipe(buffer())
+            .pipe(gulpif(env !== 'dev' && env !== 'local', stripDebug()))
+            .pipe(gulpif(env !== 'dev' && env !== 'local', uglify()))
+            .pipe(rename({ dirname: '' }))
+            .pipe(gulp.dest(dest));
     });
     es.merge(tasks).on('end', done);
   });
@@ -196,9 +199,6 @@ gulp.task('markup', function markup() {
 });
 
 // Preprocess stylesheets.
-// This will also concatenate media queries. This allows using media queries as
-// children while writing styles, instead of being forced to place unrelated
-// elements into a shared media query. See example styles for a demo.
 gulp.task('styles', function styles() {
   var src = config.src + config.styles.src;
   var dest = config.environments[env].dest + config.styles.dest;

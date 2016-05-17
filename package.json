@@ -28,6 +28,8 @@
     "vinyl-source-stream": "^1.1.0",
     "watchify": "^3.6.1",
     "jade": "^1.11.0",
+    "jsonfile": "^2.3.0",
+    "mkdirp": "^0.5.1",
     "twitter-text": "^1.13.2",
     "run-sequence": "^1.1.2",
     "uglify": "^0.1.5",

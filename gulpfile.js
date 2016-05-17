@@ -31,8 +31,8 @@
     ,   del         = require("del")                    // delete files and folders
     ,   gulpif      = require('gulp-if')                // execute operations conditionally
 
-
     // javascript
+    ,   glob        = require('glob')
     ,   browserify  = require('browserify')             // use require() in your js
     ,   watchify    = require('watchify')             // use require() in your js
     ,   source      = require('vinyl-source-stream')    // need this for browserify
@@ -40,6 +40,10 @@
     ,   concat      = require('gulp-concat')            // concat js files
     ,   uglify      = require('gulp-uglify')            // minify javascript
     ,   stripDebug  = require('gulp-strip-debug')       // remove console.log() from production build
+    ,   es          = require('event-stream')
+    ,   fs          = require('fs')
+    ,   jsonfile    = require('jsonfile')
+    ,   mkdirp      = require('mkdirp')
 
     // jade
     ,   jade        = require('gulp-jade')              // html preprocessor
@@ -94,59 +98,75 @@
 
     // Preprocess JavaScript files.
 
-    gulp.task('watch-scripts',function(){
+    gulp.task('watch-scripts',function(done){
 
             var src  = config.src + config.scripts.src,
                 dest = config.environments[env].dest + config.scripts.dest,
                 generateSourcemaps = (env === 'dev' || env ===  'local');
+            glob(src,function(err,files){
+              if (err){
+                handleError(err)
+                done(err)
+              }
 
-            var b = browserify({
-                entries: src,
-                debug: generateSourcemaps,
-                cache: {},
-                packageCache: {}
-            });
-            var w = watchify(b);
+              var tasks = files.map(function(entry){
+                var b = browserify({
+                    entries: [entry],
+                    debug: generateSourcemaps,
+                    cache: {},
+                    packageCache: {}
+                });
+                var w = watchify(b);
+                w.on('update',rebundle);
+                w.on('log',gutil.log);
 
 
-            w.on('update',rebundle);
-            w.on('log',gutil.log);
+                function rebundle(){
+                    return w.bundle()
+                    .on('error', handleError)
+                    .pipe(source(entry))
+                    .pipe(buffer())
+                    .pipe(gulpif(env != 'dev' && env != 'local', stripDebug()))
+                    .pipe(gulpif(env != 'dev' && env != 'local', uglify()))
+                    .pipe(rename({dirname:''}))
+                    .pipe(gulp.dest(dest))
+                    .pipe(connect.reload())
+                }
 
-
-            function rebundle(){
-                return w.bundle()
-                .on('error', handleError)
-                .pipe(source(src))
-                .pipe(buffer())
-                .pipe(gulpif(env != 'dev' && env != 'local', stripDebug()))
-                .pipe(gulpif(env != 'dev' && env != 'local', uglify()))
-                .pipe(rename({dirname:''}))
-                .pipe(gulp.dest(dest))
-                .pipe(connect.reload())
-            }
-
-            return rebundle();
+                return rebundle();
+              })
+              es.merge(tasks).on('end',done)
+            })
         })
 
         // Preprocess JavaScript files.
         // Uses Coffeescript and Browserify.
         // If the environment is other than "dev", this will also minify.
         // If the environment is prod, console.log() calls are stripped.
-        gulp.task('scripts', function() {
-            
+        gulp.task('scripts', function(done) {
+
             var src  = config.src + config.scripts.src,
                 dest = config.environments[env].dest + config.scripts.dest,
                 generateSourcemaps = (env === 'dev' || env ===  'local');
 
-            return browserify({ entries: src, debug: generateSourcemaps})
-                .bundle()
-                .on('error', handleError)
-                .pipe(source(src))
-                .pipe(buffer())
-                .pipe(gulpif(env != 'dev' && env != 'local', stripDebug()))
-                .pipe(gulpif(env != 'dev' && env != 'local', uglify()))
-                .pipe(rename({dirname:''}))
-                .pipe(gulp.dest(dest))
+            glob(src,function(err,files){
+              if (err){
+                handleError(err)
+                done(err)
+              }
+              var tasks = files.map(function(entry){
+                return browserify({ entries: [entry], debug: generateSourcemaps})
+                    .bundle()
+                    .on('error', handleError)
+                    .pipe(source(entry))
+                    .pipe(buffer())
+                    .pipe(gulpif(env != 'dev' && env != 'local', stripDebug()))
+                    .pipe(gulpif(env != 'dev' && env != 'local', uglify()))
+                    .pipe(rename({dirname:''}))
+                    .pipe(gulp.dest(dest))
+              })
+              es.merge(tasks).on('end',done)
+            })
 
         });
     // Preprocess Jade files.
@@ -165,6 +185,7 @@
             .pipe(minifyHtml({
                 empty: true
             }))
+            .pipe(rename({dirname:''}))
             .pipe(gulp.dest(dest))
             .pipe(connect.reload());
     });
@@ -236,8 +257,8 @@
     });
 
     // Configure settings, copy assets and run preprocessors.
-    gulp.task('build', ["clean"], function() {
-        return runSequence([ 'init', 'assets', 'markup', 'styles', 'scripts' ]);
+    gulp.task('build', ['init',"clean"], function() {
+        return runSequence([ 'assets', 'markup', 'styles', 'scripts' ]);
     });
 
     // Build, start server and watch for changes.

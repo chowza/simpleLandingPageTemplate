@@ -45,21 +45,21 @@ module.exports = {
 
     // HTML/Jade markup
     markup: {
-        src     : '**/!(_)*.jade', // ignore template files starting with underscore _
+        src     : 'view/**/!(_)*.jade', // ignore template files starting with underscore _
         watch   : '**/*.jade',
         dest    : ''
     },
 
     // Stylesheets
     styles: {
-        src     : '*.styl',
+        src     : 'view/**/*.styl',
         watch   : '**/*.styl',
         dest    : ''
     },
 
     // Javascript
     scripts: {
-        src     : 'index.js',
+        src     : 'view/**/*.js',
         watch   : '**/*.js',
         dest    : ''
     },

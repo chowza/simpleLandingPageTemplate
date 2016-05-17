@@ -1,4 +1,4 @@
-var social = require("./component/social/social.js")
+var social = require("../../component/social/social.js")
 
 
 function addEventListeners(){

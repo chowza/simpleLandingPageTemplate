@@ -1,0 +1,4 @@
+{
+  # "extends": "airbnb-base" // for linting es6
+  "extends": "airbnb-base/legacy"
+}

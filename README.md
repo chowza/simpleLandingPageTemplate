@@ -1,6 +1,6 @@
 # Simple Landing Page Template
 
-A simple template for making pages in Jade, Stylus, Browserify and Gulp.
+A simple template for making pages in Pug, Stylus, Browserify and Gulp.
 
 Includes:
   - social ready to be quickly hooked up
@@ -18,7 +18,7 @@ Includes:
 * Gulp
 * Browserify (including watchify script)
 * Stylus (including autoprefixer)
-* Jade
+* Pug
 * ES2015 (needs manual hookup)
 
 ### For ES2015

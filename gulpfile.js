@@ -1,7 +1,7 @@
 /**
  * This gulpfile has:
  *
- * - Jade markup
+ * - Pug markup
  * - Stylus with Autoprefixer
  * ==========
  * HOW TO USE
@@ -41,8 +41,8 @@ var uglify = require('gulp-uglify');              // minify javascript
 var stripDebug = require('gulp-strip-debug');     // remove console.log() from production build
 var es = require('event-stream');
 
-// jade
-var jade = require('gulp-jade');                  // html preprocessor
+// pug
+var pug = require('gulp-pug');                  // html preprocessor
 var minifyHtml = require('gulp-minify-html');     // minify html
 
 // css
@@ -177,17 +177,17 @@ gulp.task('scripts', function scripts(done) {
   });
 });
 
-// Preprocess Jade files.
-// Files that start with an underscore (e.g. _template.jade) are ignored
+// Preprocess Pug files.
+// Files that start with an underscore (e.g. _template.pug) are ignored
 // and treated as partials.
 gulp.task('markup', function markup() {
   var src = config.src + config.markup.src;
   var dest = config.environments[env].dest + config.markup.dest;
 
-  // gutil.log('Rebuilding Jade.');
+  // gutil.log('Rebuilding Pug.');
   gulp.src(src)
         .pipe(
-            jade({ pretty: true, locals: config.environments[env] })
+            pug({ pretty: true, locals: config.environments[env] })
             .on('error', handleError)
         )
         .pipe(minifyHtml({
